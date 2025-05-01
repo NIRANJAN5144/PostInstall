@@ -1,0 +1,45 @@
+---
+- name: Ensure multiple local groups are present on Windows servers
+  hosts: windows
+  become: false
+  gather_facts: false
+
+  tasks:
+    - name: Include Variables
+      include_vars:
+        file: "userslist.yml"
+        name: userslist
+
+    - name: Check Variables
+      ansible.builtin.debug:
+        msg:
+          - "{{ userslist.groups[0] }}"
+          - "{{ inventory_hostname }}"
+
+    - name: Print out the hostname
+      win_shell: hostname
+      register: hostname_output
+
+    - name: Display the hostname
+      debug:
+        msg: "The hostname is {{ hostname_output.stdout_lines }}"
+
+    - name: Ensure the local group has read-only access
+      win_acl:
+        path: D:\
+        user: "{{ userslist.groups[0] }}"  # replace with the actual group you want to grant access
+        rights: ReadAndExecute, Synchronize
+        type: allow
+        state: present
+        inherit: ContainerInherit, ObjectInherit
+        propagation: 'None'
+
+    - name: Ensure the local group has write-only access
+      win_acl:
+        path: D:\
+        user: "{{ userslist.groups[1] }}"  # replace with the actual group you want to grant access
+        rights: Modify, Synchronize
+        type: allow
+        state: present
+        inherit: ContainerInherit, ObjectInherit
+        propagation: 'None'
