@@ -1,0 +1,21 @@
+---
+  - name: Download files from S3
+    hosts: localhost
+    gather_facts: no
+    vars:
+      aws_access_key: "your_aws_access_key"
+      aws_secret_key: "your_aws_secret_key"
+      s3_bucket: "your_s3_bucket_name"
+      s3_object_key: "path/to/your/file.txt"
+      dest_path: "/path/to/destination/file.txt"
+
+    tasks:
+      - name: Download file from S3
+        amazon.aws.aws_s3:
+          bucket: "{{ s3_bucket }}"
+          object: "{{ s3_object_key }}"
+          dest: "{{ dest_path }}"
+          mode: get
+          aws_access_key: "{{ aws_access_key }}"
+          aws_secret_key: "{{ aws_secret_key }}"
+        delegate_to: localhost
